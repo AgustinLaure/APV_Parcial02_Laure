@@ -1,5 +1,6 @@
 using CustomMath;
 using System.Linq.Expressions;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Mat4x4
@@ -455,52 +456,215 @@ public class Mat4x4
 
     public Vec3 GetPosition()
     {
-        return Vec3.Zero; //ni
+        Vector4 translation = this.GetColumn(3);
+
+        return new Vec3(translation.x, translation.y, translation.z);
     }
 
     public Vector4 GetRow(int index)
     {
-        return Vector4.zero; //ni
+        Vector4 row = Vector4.zero;
+
+        switch (index)
+        {
+            case 0:
+                row = new Vector4(m00, m01, m02, m03);
+                break;
+
+            case 1:
+                row = new Vector4(m10, m11, m12, m13);
+                break;
+
+            case 2:
+                row = new Vector4(m20, m21, m22, m23);
+                break;
+
+            case 3:
+                row = new Vector4(m30, m31, m32, m33);
+                break;
+
+            default:
+                break;
+        }
+
+        return row;
+    }
+
+    public Vector4 GetColumn(int index)
+    {
+        Vector4 column = Vector4.zero;
+
+        switch (index)
+        {
+            case 0:
+                column = new Vector4(m00, m10, m20, m30);
+                break;
+
+            case 1:
+                column = new Vector4(m01, m11, m21, m31);
+                break;
+
+            case 2:
+                column = new Vector4(m02, m12, m22, m32);
+                break;
+
+            case 3:
+                column = new Vector4(m03, m13, m23, m33);
+                break;
+
+            default:
+                break;
+        }
+
+        return column;
     }
 
     public Vec3 MultiplyPoint(Vec3 point)
     {
-        return Vec3.Zero; //ni
+        Vector4 transformedPoint = this * new Vector4(point.x, point.y, point.z, 1f);
+
+        return new Vec3(transformedPoint.x, transformedPoint.y, transformedPoint.z);
     }
 
     public Vec3 MultiplyPoint3x4(Vec3 point)
     {
-        return Vec3.Zero; //ni
+        float resX = point.x * m00 + point.y * m01 + point.z * m02 + m03;
+        float resY = point.x * m10 + point.y * m11 + point.z * m12 + m13;
+        float resZ = point.x * m20 + point.y * m21 + point.z * m22 + m23;
+
+        return new Vec3(resX, resY, resZ);
     }
 
     public Vec3 MultiplyVector(Vec3 vector)
     {
-        return Vec3.Zero; //ni
+        Vector4 vec = new Vector4(vector.x, vector.y, vector.z, 0f);
+        vec = this * vec;
+
+        return new Vec3(vec.x, vec.y, vec.z);
     }
 
     public void SetColumn(int index, Vector4 column)
     {
-        //ni
+        switch (index)
+        {
+            case 0:
+                m00 = column.x;
+                m10 = column.y;
+                m20 = column.z;
+                m30 = column.w;
+                break;
+
+            case 1:
+                m01 = column.x;
+                m11 = column.y;
+                m21 = column.z;
+                m31 = column.w;
+                break;
+
+            case 2:
+                m02 = column.x;
+                m12 = column.y;
+                m22 = column.z;
+                m32 = column.w;
+                break;
+
+            case 3:
+                m03 = column.x;
+                m13 = column.y;
+                m23 = column.z;
+                m33 = column.w;
+                break;
+
+            default:
+                break;
+        }
     }
 
     public void SetRow(int index, Vector4 row)
     {
-        //ni
+        switch (index)
+        {
+            case 0:
+                m00 = row.x;
+                m01 = row.y;
+                m02 = row.z;
+                m03 = row.w;
+                break;
+
+            case 1:
+                m10 = row.x;
+                m11 = row.y;
+                m12 = row.z;
+                m13 = row.w;
+                break;
+
+            case 2:
+                m20 = row.x;
+                m21 = row.y;
+                m22 = row.z;
+                m23 = row.w;
+                break;
+
+            case 3:
+                m30 = row.x;
+                m31 = row.y;
+                m32 = row.z;
+                m33 = row.w;
+                break;
+
+            default:
+                break;
+        }
     }
 
     public void SetTRS(Vec3 pos, Quat q, Vec3 s)
     {
-        //ni
+        Mat4x4 trs = Mat4x4.TRS(pos, q, s);
+
+        this.m00 = trs.m00;
+        this.m01 = trs.m01;
+        this.m02 = trs.m02;
+        this.m03 = trs.m03;
+        this.m10 = trs.m10;
+        this.m11 = trs.m11;
+        this.m12 = trs.m12;
+        this.m13 = trs.m13;
+        this.m20 = trs.m20;
+        this.m21 = trs.m21;
+        this.m22 = trs.m22;
+        this.m23 = trs.m23;
+        this.m30 = trs.m30;
+        this.m31 = trs.m31;
+        this.m32 = trs.m32;
+        this.m33 = trs.m33;
     }
 
     public bool ValidTRS()
     {
-        return false; //ni
+        if (m30 != 0f || m31 != 0f || m32 != 0f || m33 != 1f)
+        {
+            return false;
+        }
+
+        Vec3 right = new Vec3(m00, m10, m20);
+        Vec3 up = new Vec3(m01, m11, m21);
+        Vec3 forward = new Vec3(m02, m12, m22);
+
+        if (Mathf.Abs(Vec3.Dot(right, up)) > epsilon || Mathf.Abs(Vec3.Dot(right, forward)) > epsilon || Mathf.Abs(Vec3.Dot(up, forward)) > epsilon)
+        {
+            return false;
+        }
+
+        return true;
     }
 
     public string ToString()
     {
-        return " "; //ni
+        return
+            m00 + " " + m01 + " " + m02 + " " + m03 + "\n" +
+            m10 + " " + m11 + " " + m12 + " " + m13 + "\n" +
+            m20 + " " + m21 + " " + m22 + " " + m23 + "\n" +
+            m30 + " " + m31 + " " + m32 + " " + m33;
     }
 
     #endregion
