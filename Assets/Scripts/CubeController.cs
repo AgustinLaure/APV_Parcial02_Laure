@@ -175,7 +175,7 @@ public class CubeController : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
-            rotator = m10;
+            rotator = b11;
         }
         if (Input.GetKeyDown(KeyCode.D))
         {
@@ -187,7 +187,7 @@ public class CubeController : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.E))
         {
-            rotator = b11;
+            rotator = m10;
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
